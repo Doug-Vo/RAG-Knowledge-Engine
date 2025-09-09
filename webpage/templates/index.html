@@ -19,10 +19,11 @@
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-    <div class="min-h-screen flex flex-col items-center justify-center p-4">
+    <!-- The main container now uses padding to create space around the card -->
+    <div class="min-h-screen flex flex-col justify-center p-4 sm:p-6 lg:p-8">
         
-        <!-- Main Application Card -->
-        <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg p-8">
+        <!-- Main Application Card - Uses max-width and margin-auto for robust centering -->
+        <div class="w-full max-w-5xl mx-auto bg-white rounded-xl shadow-lg p-8">
             
             <!-- Header -->
             <div class="text-center mb-8">
@@ -30,23 +31,35 @@
                 <p class="text-lg text-gray-500 mt-2">Your Personal Translator</p>
             </div>
 
-            <!-- Placeholder for Translation Interface -->
-            <div class="space-y-6">
-                <!-- This is where the input text area will go -->
-                <div class="h-40 bg-gray-50 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
-                    <p class="text-gray-400">Translation Input Area (Coming Soon)</p>
+            <!-- Translation Form - No longer needs onsubmit override as button type is correct -->
+            <form action="/" method="POST" class="space-y-6">
+                
+                <!-- Input Text Area -->
+                <div>
+                    <label for="text_to_translate" class="sr-only">Text to translate</label>
+                    <textarea 
+                        name="text_to_translate" 
+                        id="text_to_translate" 
+                        rows="6"
+                        class="w-full p-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none"
+                        placeholder="Enter text to translate..."
+                    ></textarea>
                 </div>
                 
-                <!-- This is where the output text area will go -->
-                <div class="h-40 bg-gray-50 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
-                    <p class="text-gray-400">Translation Output Area (Coming Soon)</p>
+                <!-- Output Area (Hidden for now) -->
+                <div id="translation_output_area" class="h-40 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center hidden">
+                    <p class="text-gray-500">Translation will appear here.</p>
                 </div>
                 
-                <!-- This is where the translate button will go -->
-                <div class="h-12 bg-blue-500 rounded-lg flex items-center justify-center text-white font-semibold shadow-md">
-                    Translate (Placeholder)
-                </div>
-            </div>
+                <!-- Translate Button -->
+                <button 
+                    type="submit" 
+                    class="w-full py-3 px-4 bg-blue-400 text-white font-semibold rounded-lg shadow-md"
+                >
+                    Model is being built for now, please wait
+                </button>
+
+            </form>
 
         </div>
 
