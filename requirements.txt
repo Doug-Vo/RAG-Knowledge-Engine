@@ -8,7 +8,9 @@ transformers
 torch
 
 # SentencePiece (tokenizer for the Helsinki-NLP models)
-sentencepiece
+SentencePiece
 
+
+sacremoses
 # Library for Google Translate comparison (specific version)
 googletrans==4.0.0-rc1
