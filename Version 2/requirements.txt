@@ -1,0 +1,8 @@
+#MongoDB
+pymongo
+
+#tools
+tf-keras
+sentence-transformers
+pypdf
+
