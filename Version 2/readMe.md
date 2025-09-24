@@ -1,1 +1,0 @@
-Make sure to set up your connection string in **MONGO_URI**
