@@ -10,7 +10,18 @@ torch
 # SentencePiece (tokenizer for the Helsinki-NLP models)
 SentencePiece
 
-
+colorama
+werkzeug
 sacremoses
 # Library for Google Translate comparison (specific version)
 googletrans==4.0.0-rc1
+asyncio
+jupyter
+langchain 
+pymongo 
+pypdf 
+sentence-transformers 
+beautifulsoup4 
+youtube-transcript-api 
+lxml
+pytubefix
