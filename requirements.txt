@@ -10,6 +10,7 @@ torch
 # SentencePiece (tokenizer for the Helsinki-NLP models)
 SentencePiece
 
+langchain-openai
 colorama
 werkzeug
 sacremoses

@@ -60,3 +60,4 @@ To run the web interface locally, follow these steps.
 5.  **View the application:** Open your web browser and navigate to `http://127.0.0.1:5000`.
 
 Make sure to set up your connection string in **MONGO_URI**
+Make sure to set up your OpenAI API Key
