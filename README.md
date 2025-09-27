@@ -1,63 +1,79 @@
-# PeTS (Personal Translator)
+# Your Project Title
 
-A web application built with Flask for translating text between Finnish and English. This project uses a powerful, locally-run, open-source language model to provide fast and accurate translations.
+A brief one or two-sentence description of your project. Explain what it does, who it's for, and the main problem it solves.
 
-## Current Status (As of September 2025)
+## ✨ Features
 
-The project is currently in the final development phase.
+* Connects securely to a MongoDB database.
+* Feature 2: Brief description of another key capability.
+* Feature 3: And another one.
 
-* **Web Interface:** The user interface is complete, allowing users to input text.
-* **Translation Engine:** The translation functionality is currently disabled in the UI while the backend is being integrated.
-* **Model Evaluation:** We have successfully evaluated the `Helsinki-NLP/opus-mt` models for both `en-fi` and `fi-en` translation. Extensive testing shows the model provides high-quality, grammatically correct translations that are highly competitive with commercial services like Google Translate. The model is confirmed and ready for integration.
+## 🔧 Getting Started
 
-## Core Technology
-
-* **Backend:** Python 3, Flask
-* **Frontend:** HTML, [Tailwind CSS](https://tailwindcss.com/)
-* **Translation Model:** [Helsinki-NLP/opus-mt](https://huggingface.co/Helsinki-NLP) series via the Hugging Face `transformers` library.
-
-## Key Resources & Datasets
-
-This project's development and evaluation relied on the following key resources:
-
-* **Primary Model:** [Helsinki-NLP/opus-mt-fi-en](https://huggingface.co/Helsinki-NLP/opus-mt-fi-en) - The pre-trained, open-source model from Hugging Face that serves as the core translation engine.
-* **Benchmarking Tool:** [googletrans 4.0.0-rc1](https://pypi.org/project/googletrans/4.0.0-rc1/) - A Python library used to compare the local model's performance against Google Translate's public API.
-* **Data Exploration:** [ParaCrawl (Finnish-English)](https://paracrawl.eu/) - A large parallel corpus that was analyzed and prepared during the initial data exploration phase of the project.
-
-## How to Run the Web Application
-
-To run the web interface locally, follow these steps.
+Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
 
-* Python 3.6+
+You will need the following software installed on your machine:
 
-### Setup
+* [Python](https://www.python.org/) (v3.8 or later is recommended)
+* [Pip](https://pip.pypa.io/en/stable/installation/) (which is typically included with Python)
+* [Git](https://git-scm.com/)
+* A MongoDB database instance. You can create a free one on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
 
-1.  **Clone or download the project files** into a new directory.
+### Installation
 
-2.  **Create and activate a virtual environment** (recommended):
-    ```bash
+1.  **Clone the repository**
+    ```sh
+    git clone [https://github.com/your-username/your-repository-name.git](https://github.com/your-username/your-repository-name.git)
+    ```
+
+2.  **Navigate into the project directory**
+    ```sh
+    cd your-repository-name
+    ```
+
+3.  **Create and activate a virtual environment (Recommended)**
+    *This isolates your project's dependencies.*
+    ```sh
     # For macOS/Linux
     python3 -m venv venv
     source venv/bin/activate
-    
+
     # For Windows
-    py -m venv venv
-    venv\Scripts\activate
+    python -m venv venv
+    .\venv\Scripts\activate
     ```
 
-3.  **Install the necessary Python packages:**
-    ```bash
+4.  **Install Python packages**
+    ```sh
     pip install -r requirements.txt
     ```
 
-4.  **Run the Flask application:**
-    ```bash
-    flask run
-    ```
+---
 
-5.  **View the application:** Open your web browser and navigate to `http://127.0.0.1:5000`.
+## ⚙️ Configuration
 
-Make sure to set up your connection string in **MONGO_URI**
-Make sure to set up your OpenAI API Key
+This project uses environment variables to handle configuration and keep sensitive data like database credentials secure.
+
+1.  Create a new file named `.env` in the root of your project.
+2.  Copy the contents from `.env.example` into your new `.env` file.
+3.  Update the values in the `.env` file with your specific configuration.
+
+**⚠️ Important:** The `.env` file should **never** be committed to version control. Make sure your `.gitignore` file includes a line for `.env`.
+
+### Environment Variables
+
+| Variable         | Description                                                                                                                              | Example                                                                                                  |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `MONGODB_URI`    | **Required.** Your full MongoDB connection string, including your username, password, and database name. This is crucial for connecting to the database. | `mongodb+srv://<user>:<password>@cluster-name.mongodb.net/myDatabase?retryWrites=true&w=majority` |
+| `OPENAI_API_KEY`      | **Required.** We need OpenAI key for this project                                                                          | 
+
+---
+
+## 🚀 Running the Application
+
+Once you have installed the dependencies and configured your environment variables, you can run the application with the following command:
+
+```sh
+flask run

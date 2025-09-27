@@ -105,13 +105,11 @@ def load_youtube(source_url):
         final_text = processed_caption
         
         if caption.code not in ['en', 'a.en']:
-            # --- THIS IS THE NEW SCRIPT YOU REQUESTED ---
             # It cleans the language code before translation.
             source_language_code = caption.code
             if source_language_code.startswith('a.'):
                 source_language_code = source_language_code.split('.')[-1]
                 logging.info(f"Cleaned auto-generated lang code from '{caption.code}' to '{source_language_code}' for translator.")
-            # --- END OF NEW SCRIPT ---
 
             logging.info(f"Translating content from '{source_language_code}' to English...")
             final_text = translate_to_english(processed_caption, src_lang=source_language_code)
