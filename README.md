@@ -1,16 +1,22 @@
-# Your Project Title
+# RAG KNOWLEDGE ENGINE
 
-A brief one or two-sentence description of your project. Explain what it does, who it's for, and the main problem it solves.
+My startup project on using **RAG (Retrieval Augmented Generation)** pipeline along with MongoDB to answer question based on the documents ingested
+
+## Extra Plugs:
+- Video 
+- [Info Slides](https://docs.google.com/presentation/d/1gBh9gEL8tzIML4RIR9M011QN1lgIxafQ/edit?usp=sharing&ouid=101357731019395598793&rtpof=true&sd=true)
 
 ## ✨ Features
 
 * Connects securely to a MongoDB database.
-* Feature 2: Brief description of another key capability.
-* Feature 3: And another one.
+* Ingesting multiple source (PDFs, link, youtube)
+* QA bot
 
-## 🔧 Getting Started
+## 🔧 Pipeline
+- [LangChain - RetrievalQA](https://python.langchain.com/api_reference/langchain/chains/langchain.chains.retrieval_qa.base.RetrievalQA.html)
+- [HuggingFace Embedding Model - all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
+- [OpenAI API](https://platform.openai.com/docs/overview) (Sharing pipeline with LangChain)
 
-Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
 
@@ -25,44 +31,18 @@ You will need the following software installed on your machine:
 
 1.  **Clone the repository**
     ```sh
-    git clone [https://github.com/your-username/your-repository-name.git](https://github.com/your-username/your-repository-name.git)
+    git clone https://github.com/Doug-Vo/RAG-Knowledge-Engine.git
     ```
 
-2.  **Navigate into the project directory**
-    ```sh
-    cd your-repository-name
-    ```
-
-3.  **Create and activate a virtual environment (Recommended)**
-    *This isolates your project's dependencies.*
-    ```sh
-    # For macOS/Linux
-    python3 -m venv venv
-    source venv/bin/activate
-
-    # For Windows
-    python -m venv venv
-    .\venv\Scripts\activate
-    ```
-
-4.  **Install Python packages**
+2.  **Install Python packages**
     ```sh
     pip install -r requirements.txt
     ```
 
----
 
-## ⚙️ Configuration
 
-This project uses environment variables to handle configuration and keep sensitive data like database credentials secure.
 
-1.  Create a new file named `.env` in the root of your project.
-2.  Copy the contents from `.env.example` into your new `.env` file.
-3.  Update the values in the `.env` file with your specific configuration.
-
-**⚠️ Important:** The `.env` file should **never** be committed to version control. Make sure your `.gitignore` file includes a line for `.env`.
-
-### Environment Variables
+## ⚙️ Environment Variables
 
 | Variable         | Description                                                                                                                              | Example                                                                                                  |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
@@ -70,10 +50,3 @@ This project uses environment variables to handle configuration and keep sensiti
 | `OPENAI_API_KEY`      | **Required.** We need OpenAI key for this project                                                                          | 
 
 ---
-
-## 🚀 Running the Application
-
-Once you have installed the dependencies and configured your environment variables, you can run the application with the following command:
-
-```sh
-flask run

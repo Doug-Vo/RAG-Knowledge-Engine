@@ -14,7 +14,6 @@ langchain-openai
 colorama
 werkzeug
 sacremoses
-# Library for Google Translate comparison (specific version)
 googletrans==4.0.0-rc1
 asyncio
 jupyter
