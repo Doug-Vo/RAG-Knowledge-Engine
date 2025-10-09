@@ -3,7 +3,7 @@
 My startup project on using **RAG (Retrieval Augmented Generation)** pipeline along with MongoDB to answer question based on the documents ingested
 
 ## Extra Plugs:
-- Video 
+- [Video](https://youtu.be/zJDVFXj0eqI?si=YpSIKIR43a99eQ9c) 
 - [Info Slides](https://docs.google.com/presentation/d/1gBh9gEL8tzIML4RIR9M011QN1lgIxafQ/edit?usp=sharing&ouid=101357731019395598793&rtpof=true&sd=true)
 
 ## ✨ Features
