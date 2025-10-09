@@ -17,11 +17,13 @@ import colorama
 from pymongo import MongoClient
 from langchain_community.document_loaders import PyPDFLoader, WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.vectorstores import MongoDBAtlasVectorSearch
 from langchain.docstore.document import Document
 from pytubefix import YouTube
 from googletrans import Translator
+# prevent deprecation
+from langchain_mongodb import MongoDBAtlasVectorSearch
+from langchain_huggingface import HuggingFaceEmbeddings
+# ...other imports remain the same...
 
 # --- SETUP COLORED LOGGING ---
 # This section sets up a custom logger to make terminal output easier to read.

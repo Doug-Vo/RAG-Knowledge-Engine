@@ -3,6 +3,12 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from werkzeug.utils import secure_filename
 import logging
 from langchain_openai import ChatOpenAI
+from langchain.chains import RetrievalQA
+from langchain_openai import ChatOpenAI
+from langchain_mongodb import MongoDBAtlasVectorSearch
+from langchain import hub
+from langchain.chains import create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
 
 # --- IMPORT HELPER FUNCTION ---
 # Imports all the necessary data processing functions and global variables
@@ -13,23 +19,14 @@ from loading_doc_helper import (
     DB_NAME, COLLECTION_NAME, embedding_model, client, ATLAS_VECTOR_SEARCH_INDEX_NAME
 )
 
-# Imports the necessary LangChain components for building the RAG chain.
-from langchain.chains import RetrievalQA
-from langchain_community.vectorstores import MongoDBAtlasVectorSearch
 
-# --- QA SET UP ---
-# This section configures and initializes the RAG (Retrieval-Augmented Generation)
-# chain. These objects are created once when the server starts for efficiency.
 
-# Gets the specific MongoDB collection object from the client that was initialized in the helper file.
+# --- Variable Set up
+
 collection = client[DB_NAME][COLLECTION_NAME]
 
-# Initializes the Large Language Model (LLM) from OpenAI that will generate the final answers.
-# It uses the OPENAI_API_KEY environment variable automatically.
 llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
 
-# Initializes the vector store object, which connects to our MongoDB Atlas database.
-# This object knows how to use the embedding model to search for relevant documents.
 vector_store = MongoDBAtlasVectorSearch(
     collection= collection, 
     embedding= embedding_model,
@@ -37,14 +34,12 @@ vector_store = MongoDBAtlasVectorSearch(
 )
 logging.info("RAG chain is ready.")
 
-# Creates the final RetrievalQA chain. This object ties everything together:
-# it takes a question, uses the retriever to find documents, and sends them to the LLM.
-qa = RetrievalQA.from_chain_type(
-    llm = llm,
-    retriever = vector_store.as_retriever(),
-    chain_type = "map_reduce",
-    return_source_documents = True # Instructs the chain to return which documents it used
-)
+# --- QA Chain Set up
+
+chat_prompt = hub.pull("langchain-ai/retrieval-qa-chat")
+
+combine_docs_chain = create_stuff_documents_chain(llm, chat_prompt)
+rag_chain = create_retrieval_chain(vector_store.as_retriever(), combine_docs_chain)
 
 
 # --- FLASK APP SETUP ---
@@ -75,13 +70,21 @@ def home():
         # Proceeds only if the user actually typed a question.
         if question:
             try:
-                result = qa.invoke({"query": question})
-                answer = result["result"]
+                result = rag_chain.invoke({"input": question})
+                answer = result["answer"]
                 
                 logging.info(f"Received the answer: {answer}")
                 # If the chain returned the source documents, this extracts their names.
-                if result.get("source_documents"):
-                    raw_sources = [doc.metadata.get('source', 'Unknown') for doc in result["source_documents"]]
+                if result.get("context"):
+                    raw_sources = []
+                    title = ""
+                    url = ""
+                    for doc in result['context']:
+                        title = doc.metadata.get('title')
+                        url = doc.metadata.get('source')
+                        if title or url:
+                            raw_sources.append(f"{title} - {url}")
+                            
                     # Creates a list of unique source names.
                     source_documents = list(set(raw_sources))
                 
