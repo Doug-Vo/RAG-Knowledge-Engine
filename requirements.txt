@@ -1,27 +1,27 @@
-# Flask Web Framework
+# Core Framework
 Flask
-
-# Hugging Face Transformers for loading the local model
-transformers
-
-# PyTorch (required by transformers for the models)
-torch
-
-# SentencePiece (tokenizer for the Helsinki-NLP models)
-SentencePiece
-
-langchain-openai
-colorama
+gunicorn
 werkzeug
-sacremoses
+python-dotenv
+colorama
+
+# Utilities
+pytubefix
 googletrans==4.0.0-rc1
 asyncio
 jupyter
-langchain 
-pymongo 
-pypdf 
-sentence-transformers 
-beautifulsoup4 
-youtube-transcript-api 
 lxml
-pytubefix
+beautifulsoup4
+datetime
+
+# RAG & AI
+langchain
+langchain-community
+langchain-mongodb
+pymongo
+langchain-google-genai
+sentence-transformers
+langchain-huggingface
+huggingface_hub
+pypdf
+sacremoses

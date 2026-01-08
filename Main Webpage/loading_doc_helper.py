@@ -11,7 +11,7 @@ This file contains all the core logic for the data ingestion pipeline, including
 
 import os
 import logging
-import time
+import datetime
 import asyncio
 import colorama
 from pymongo import MongoClient
@@ -53,6 +53,7 @@ logging.getLogger("pypdf").setLevel(logging.ERROR)
 # --- INITIALIZE HEAVY OBJECTS ONCE ---
 # To improve performance, we initialize resource-intensive objects like models and
 # database clients once when the module is first imported, instead of on every function call.
+
 logging.info("Initializing models and clients for helper module...")
 MONGO_URI = os.environ.get('MONGO_URI', 'YOUR_MONGO_CONNECTION_STRING')
 client = MongoClient(MONGO_URI)
@@ -186,11 +187,18 @@ def split_text(docs):
 
 def embed_and_upload(docs):
     """Creates embeddings for document chunks and uploads them to MongoDB Atlas."""
+
     if not docs:
         logging.warning("Received no documents to embed and upload. Skipping.")
         return
     logging.info(f"Embedding and uploading {len(docs)} chunks to MongoDB Atlas...")
     collection = client[DB_NAME][COLLECTION_NAME]
+
+    current_time = datetime.datetime.now(datetime.timezone.utc)
+    for doc in docs:
+        doc.metadata['created_at'] = current_time
+        doc.metadata['is_persistent'] = False
+
     # This LangChain function handles the embedding and upload process in batches.
     MongoDBAtlasVectorSearch.from_documents(
         documents=docs,

@@ -2,9 +2,11 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from werkzeug.utils import secure_filename
 import logging
-from langchain_openai import ChatOpenAI
 from langchain.chains import RetrievalQA
-from langchain_openai import ChatOpenAI
+
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_google_genai import ChatGoogleGenerativeAI
+
 from langchain_mongodb import MongoDBAtlasVectorSearch
 from langchain import hub
 from langchain.chains import create_retrieval_chain
@@ -23,9 +25,19 @@ from loading_doc_helper import (
 
 # --- Variable Set up
 
+
+
+
 collection = client[DB_NAME][COLLECTION_NAME]
 
-llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+if not os.environ.get("GOOGLE_API_KEY"):
+    logging.warning("GOOGLE_API_KEY not found! RAG will fail.")
+
+llm = ChatGoogleGenerativeAI(
+    model = "gemini-2.5-flash",
+    temperature=0,
+    max_retries = 2
+)
 
 vector_store = MongoDBAtlasVectorSearch(
     collection= collection, 
@@ -36,7 +48,10 @@ logging.info("RAG chain is ready.")
 
 # --- QA Chain Set up
 
-chat_prompt = hub.pull("langchain-ai/retrieval-qa-chat")
+chat_prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful assistant. Use the following context to answer the user's question. If you don't know, say you don't know.\n\n{context}"),
+    ("human", "{input}"),
+])
 
 combine_docs_chain = create_stuff_documents_chain(llm, chat_prompt)
 rag_chain = create_retrieval_chain(vector_store.as_retriever(), combine_docs_chain)
@@ -74,18 +89,31 @@ def home():
                 answer = result["answer"]
                 
                 logging.info(f"Received the answer: {answer}")
-                # If the chain returned the source documents, this extracts their names.
-                if result.get("context"):
+                
+                retrieved_docs = result.get("context", [])
+                logging.info(f"Retrieved {len(retrieved_docs)} documents from vector store.")
+
+                
+                if not retrieved_docs:
+                    logging.warning("No documents retrieved! Answer is coming from LLM internal knowledge.")
+                    source_documents = ["No relevant documents found in knowledge base."]
+                else:
+                    
                     raw_sources = []
-                    title = ""
-                    url = ""
-                    for doc in result['context']:
+                    for doc in retrieved_docs:
+                        
+                        url = doc.metadata.get('source', 'Unknown Source')
                         title = doc.metadata.get('title')
-                        url = doc.metadata.get('source')
-                        if title or url:
-                            raw_sources.append(f"{title} - {url}")
-                            
-                    # Creates a list of unique source names.
+
+                        
+                        if not title and url != 'Unknown Source':
+                            title = os.path.basename(url)
+                        if not title:
+                            title = "Document Fragment"
+
+                        raw_sources.append(f"{title} ({url})")
+                    
+                    
                     source_documents = list(set(raw_sources))
                 
             except Exception as e:
@@ -150,7 +178,7 @@ def ingest():
 
     except Exception as e:
         logging.error(f"Ingestion pipeline failed for '{source_path}': {e}")
-        flash(f"UNABLE TO UPLOAD KNOWLEDGE: An error occurred with '{source_path}'.", "error")
+        flash(f"UNABLE TO UPLOAD KNOWLEDGE: An error occurred with '{source_path}'.", "error / Youtube video probably doesn't have any available caption")
 
     return redirect(url_for('home'))
 
