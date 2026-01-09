@@ -1,27 +1,27 @@
-# Core Framework
+# Core Web Framework
 Flask
-gunicorn
-werkzeug
 python-dotenv
-colorama
 
 # Utilities
-pytubefix
-googletrans==4.0.0-rc1
-asyncio
-jupyter
-lxml
-beautifulsoup4
-datetime
+colorama  
 
-# RAG & AI
+# LangChain Ecosystem (v0.3+)
 langchain
+langchain-core
 langchain-community
+langchain-openai
 langchain-mongodb
-pymongo
-langchain-google-genai
-sentence-transformers
 langchain-huggingface
-huggingface_hub
+langchain-text-splitters
+
+# Database
+pymongo
+
+# Document Loading & Processing
 pypdf
-sacremoses
+beautifulsoup4
+pytubefix
+sentence-transformers
+
+# Translation (Specific version required to fix httpcore error)
+googletrans==4.0.0-rc1

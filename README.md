@@ -1,37 +1,44 @@
-# RAG KNOWLEDGE ENGINE
+# 🧠 AI Document Workbench (RAG Knowledge Engine)
 
-My startup project on using **RAG (Retrieval Augmented Generation)** pipeline along with MongoDB to answer question based on the documents ingested
-
-## Extra Plugs:
-- [Video](https://youtu.be/zJDVFXj0eqI?si=YpSIKIR43a99eQ9c) 
-- [Info Slides](https://docs.google.com/presentation/d/1gBh9gEL8tzIML4RIR9M011QN1lgIxafQ/edit?usp=sharing&ouid=101357731019395598793&rtpof=true&sd=true)
+ **Retrieval Augmented Generation (RAG)** application that allows users to "chat" with their documents. It uses a **Hybrid Knowledge Base** architecture, supporting both permanent organizational documents and temporary user uploads that auto-expire.
 
 ## ✨ Features
 
-* Connects securely to a MongoDB database.
-* Ingesting multiple source (PDFs, link, youtube)
-* QA bot
+* **Hybrid Database:**
+    * **Permanent Docs:** Core documents (manuals, policies) stay forever.
+    * **Temporary Uploads:** User-uploaded files are **automatically deleted after 1 hour** to maintain hygiene.
+* **Multi-Source Ingestion:**
+    * **PDFs:** Upload local files.
+    * **Web Links:** Scrapes and indexes text from URLs.
+    * **YouTube:** Downloads transcripts. **Auto-translates** non-English captions to English before indexing.
+* **Modern AI Stack:**
+    * **LLM:** OpenAI GPT-4o-mini (Cost-effective & fast).
+    * **Vector Store:** MongoDB Atlas Vector Search.
+    * **Embeddings:** HuggingFace (`all-MiniLM-L6-v2`) running locally for privacy/cost.
+    * **Framework:** LangChain v0.3 (LCEL Architecture).
 
-## 🔧 Pipeline
-- [LangChain - RetrievalQA](https://python.langchain.com/api_reference/langchain/chains/langchain.chains.retrieval_qa.base.RetrievalQA.html)
-- [HuggingFace Embedding Model - all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
-- [OpenAI API](https://platform.openai.com/docs/overview) (Sharing pipeline with LangChain)
+## 🔧 Technical Pipeline
 
+1.  **Ingestion:** `LangChain Community Loaders` (PyPDF, WebBase) & `pytubefix` (YouTube).
+2.  **Processing:** Text is split into chunks (RecursiveCharacterTextSplitter) and translated if necessary (`googletrans`).
+3.  **Storage:** Embeddings are generated via `sentence-transformers` and stored in **MongoDB Atlas**.
+4.  **Retrieval:** `MongoDBAtlasVectorSearch` performs cosine similarity search.
+5.  **Generation:** `LangChain LCEL` pipes retrieved context + query to `OpenAI GPT-4o-mini`.
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
-You will need the following software installed on your machine:
-
-* [Python](https://www.python.org/) (v3.8 or later is recommended)
-* [Pip](https://pip.pypa.io/en/stable/installation/) (which is typically included with Python)
-* [Git](https://git-scm.com/)
-* A MongoDB database instance. You can create a free one on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
+* [Python 3.10+](https://www.python.org/)
+* [MongoDB Atlas Account](https://www.mongodb.com/cloud/atlas) (Free tier works)
+* [OpenAI API Key](https://platform.openai.com/)
 
 ### Installation
 
 1.  **Clone the repository**
     ```sh
-    git clone https://github.com/Doug-Vo/RAG-Knowledge-Engine.git
+    git clone [https://github.com/Doug-Vo/RAG-Knowledge-Engine.git](https://github.com/Doug-Vo/RAG-Knowledge-Engine.git)
+    cd `Main-Webpage`
     ```
 
 2.  **Install Python packages**
@@ -39,14 +46,57 @@ You will need the following software installed on your machine:
     pip install -r requirements.txt
     ```
 
+3.  **Set up Environment Variables**
+    Create a `.env` file in the root directory:
+    ```env
+    MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/?retryWrites=true&w=majority
+    OPENAI_API_KEY=sk-proj-....
+    SECRET_KEY=your_secret_key_for_flask_sessions
+    ```
 
+4.  **Configure MongoDB Atlas**
+    * Create a Database: `ai_workbench`
+    * Create a Collection: `documents`
+    * **Create a Vector Search Index** (JSON Editor):
+        ```json
+        {
+          "fields": [
+            {
+              "numDimensions": 384,
+              "path": "embedding",
+              "similarity": "cosine",
+              "type": "vector"
+            }
+          ]
+        }
+        ```
 
+### Usage
 
-## ⚙️ Environment Variables
+1.  **Run the Application**
+    ```sh
+    python app.py
+    ```
+2.  Open your browser to `http://127.0.0.1:5000`.
+3.  **Ingest:** Go to the "Add Knowledge" tab to upload a PDF or paste a YouTube URL.
+4.  **Query:** Go to "Ask a Question" to chat with your data.
 
-| Variable         | Description                                                                                                                              | Example                                                                                                  |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `MONGODB_URI`    | **Required.** Your full MongoDB connection string, including your username, password, and database name. This is crucial for connecting to the database. | `mongodb+srv://<user>:<password>@cluster-name.mongodb.net/myDatabase?retryWrites=true&w=majority` |
-| `OPENAI_API_KEY`      | **Required.** We need OpenAI key for this project                                                                          | 
+## ⚙️ Environment Variables Reference
+
+| Variable | Description | Required? |
+| :--- | :--- | :--- |
+| `MONGO_URI` | Your full MongoDB Atlas connection string. | **Yes** |
+| `OPENAI_API_KEY` | Your OpenAI API Key for the LLM. | **Yes** |
+| `SECRET_KEY` | A random string for Flask session security. | Yes |
+| `LANGCHAIN_TRACING_V2`| Set to `true` to enable LangSmith debugging. | No |
+| `LANGCHAIN_API_KEY` | Required only if Tracing is enabled. | No |
+
+## 📚 Tech Stack Details
+
+* **Frontend:** HTML5, TailwindCSS, Vanilla JS
+* **Backend:** Flask (Python)
+* **AI Orchestration:** LangChain Core (Runnables/LCEL)
+* **Translation:** GoogleTrans (Unofficial API)
 
 ---
+*Created by Doug Vo*
