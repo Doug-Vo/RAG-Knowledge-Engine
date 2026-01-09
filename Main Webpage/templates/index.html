@@ -18,12 +18,11 @@
 
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
         <div class="bg-white rounded-lg shadow-xl p-6 md:p-8">
-            <!-- Header -->
             <div class="text-center mb-6">
                 <h1 class="text-4xl font-bold text-gray-800">AI Document Workbench</h1>
+                <p class="text-gray-500 mt-2">Interact with your documents using advanced AI.</p>
             </div>
 
-            <!-- Flash Messages for Ingestion Feedback -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     <div class="mb-6 space-y-2">
@@ -39,33 +38,94 @@
                 {% endif %}
             {% endwith %}
 
-            <!-- Tab Buttons -->
             <div class="mb-6 border-b border-gray-200">
                 <nav class="flex space-x-4" aria-label="Tabs">
-                    <button id="tab-query" class="tab-button active text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg">
+                    
+                    <button id="tab-about" 
+                        class="tab-button {% if active_tab == 'about' %}active{% endif %} text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg">
+                        About & Info
+                    </button>
+                    
+                    <button id="tab-query" 
+                        class="tab-button {% if active_tab == 'query' %}active{% endif %} text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg">
                         Ask a Question
                     </button>
-                    <button id="tab-ingest" class="tab-button text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg">
+                    
+                    <button id="tab-ingest" 
+                        class="tab-button {% if active_tab == 'ingest' %}active{% endif %} text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg">
                         Add Knowledge
                     </button>
                 </nav>
             </div>
 
-            <!-- Tab Content -->
             <div>
-                <!-- Query Pane (Visible by default) -->
-                <div id="pane-query">
+                
+                <div id="pane-about" class="{% if active_tab != 'about' %}hidden{% endif %}">
+                    <div class="space-y-6 text-gray-700">
+                        
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome to the AI Document Workbench</h2>
+                            <p class="leading-relaxed">
+                                This tool allows you to "chat" with your documents. Instead of relying solely on general knowledge, this AI looks up specific information from the files and links you provide to give you accurate, sourced answers.
+                            </p>
+                        </div>
+
+                        <hr class="border-gray-200">
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">How it Works (RAG)</h3>
+                            <p class="mb-4">
+                                This application uses a technique called <strong>Retrieval-Augmented Generation (RAG)</strong>. Here is the process:
+                            </p>
+                            <ol class="list-decimal list-inside space-y-2 ml-2">
+                                <li><strong>Ingestion:</strong> When you upload a PDF or link, we split the text into small "chunks".</li>
+                                <li><strong>Embedding:</strong> We convert these chunks into numerical vectors (lists of numbers) that represent their meaning.</li>
+                                <li><strong>Retrieval:</strong> When you ask a question, we search the database for the chunks most similar to your query.</li>
+                                <li><strong>Generation:</strong> We send your question + the relevant chunks to the AI model, which writes an answer based <em>only</em> on that information.</li>
+                            </ol>
+                        </div>
+
+                        <hr class="border-gray-200">
+
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h3 class="text-xl font-semibold text-blue-800 mb-3">Knowledge Base Status</h3>
+                            
+                            <div class="mb-4">
+                                <h4 class="font-bold text-blue-900">📚 Permanent Documents (Always Available):</h4>
+                                <ul class="list-disc list-inside text-sm text-blue-800 mt-1 ml-2 space-y-1">
+                                    <li><a href="https://docs.google.com/presentation/d/1Ccnj9lmjeEYLoBWLZlxehilMvSm52k4sYBoL-PghpDg/edit?usp=sharing" target="_blank" class="underline hover:text-blue-600">Project Presentation [Slides]</a></li>
+                                    <li><a href="https://www.youtube.com/watch?v=4b4MUYve_U8" target="_blank" class="underline hover:text-blue-600">Stanford CS229: Machine Learning - Linear Regression (Lecture 2) [Video]</a></li>
+                                    <li><a href="https://en.wikipedia.org/wiki/Aalto_University" target="_blank" class="underline hover:text-blue-600">Aalto University [Wiki]</a></li>
+                                    <li><a href="https://en.wikipedia.org/wiki/University_of_Helsinki" target="_blank" class="underline hover:text-blue-600">University of Helsinki [Wiki]</a></li>
+                                    <li><a href="https://en.wikipedia.org/wiki/University_of_Oulu" target="_blank" class="underline hover:text-blue-600">University of Oulu [Wiki]</a></li>
+                                    <li><a href="https://en.wikipedia.org/wiki/IPhone" target="_blank" class="underline hover:text-blue-600">iPhone [Wiki]</a></li>
+                                    <li><a href="https://en.wikipedia.org/wiki/OpenAI" target="_blank" class="underline hover:text-blue-600">OpenAI [Wiki]</a></li>
+                                    <li><a href="https://en.wikipedia.org/wiki/Donald_Trump" target="_blank" class="underline hover:text-blue-600">Donald Trump [Wiki]</a></li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h4 class="font-bold text-blue-900">⏳ Your Uploads (Temporary):</h4>
+                                <p class="text-sm text-blue-800 mt-1 ml-2">
+                                    Any document you add via the "Add Knowledge" tab is considered temporary. 
+                                    To keep the database clean and efficient, <strong>user uploads are automatically deleted 1 hour after creation.</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pane-query" class="{% if active_tab != 'query' %}hidden{% endif %}">
                     <form action="/" method="POST" class="space-y-6">
                         <div>
                             <label for="question" class="block text-sm font-medium text-gray-700">Your Question</label>
-                            <input type="text" name="question" id="question" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-lg p-3" placeholder="e.g., What is a Stack?" value="{{ question or '' }}">
+                            <input type="text" name="question" id="question" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-lg p-3" placeholder="e.g., Where is University of Oulu" value="{{ question or '' }}">
                         </div>
                         <div class="text-right">
                             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md">Query Knowledge</button>
                         </div>
                     </form>
                     
-                    <!-- Display Area for Q&A Results -->
                     {% if answer %}
                     <div class="mt-8 pt-6 border-t">
                         <h3 class="text-xl font-semibold text-gray-800 mb-2">Answer:</h3>
@@ -85,8 +145,17 @@
                     {% endif %}
                 </div>
 
-                <!-- Ingest Pane (Hidden by default) -->
-                <div id="pane-ingest" class="hidden">
+                <div id="pane-ingest" class="{% if active_tab != 'ingest' %}hidden{% endif %}">
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                        <div class="flex">
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700">
+                                    <span class="font-bold">Note:</span> Documents uploaded here are temporary. They will be automatically deleted from the database <strong>1 hour</strong> after upload.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     <form action="/ingest" method="POST" enctype="multipart/form-data" class="space-y-6">
                         <div>
                             <h3 class="text-lg font-medium text-gray-800">Upload a PDF File</h3>
@@ -107,31 +176,40 @@
                         </div>
                     </form>
                 </div>
+
             </div>
         </div>
     </div>
 
     <script>
-        // Simple JavaScript for tab switching functionality
+        // Tab Switching Logic
+        const tabAbout = document.getElementById('tab-about');
         const tabQuery = document.getElementById('tab-query');
         const tabIngest = document.getElementById('tab-ingest');
+
+        const paneAbout = document.getElementById('pane-about');
         const paneQuery = document.getElementById('pane-query');
         const paneIngest = document.getElementById('pane-ingest');
 
-        tabQuery.addEventListener('click', () => {
-            paneQuery.classList.remove('hidden');
-            paneIngest.classList.add('hidden');
-            tabQuery.classList.add('active');
-            tabIngest.classList.remove('active');
-        });
-
-        tabIngest.addEventListener('click', () => {
-            paneIngest.classList.remove('hidden');
+        function switchTab(activeTab, activePane) {
+            // Hide all panes
+            paneAbout.classList.add('hidden');
             paneQuery.classList.add('hidden');
-            tabIngest.classList.add('active');
+            paneIngest.classList.add('hidden');
+            
+            // Deactivate all tabs
+            tabAbout.classList.remove('active');
             tabQuery.classList.remove('active');
-        });
+            tabIngest.classList.remove('active');
+
+            // Activate selected
+            activePane.classList.remove('hidden');
+            activeTab.classList.add('active');
+        }
+
+        tabAbout.addEventListener('click', () => switchTab(tabAbout, paneAbout));
+        tabQuery.addEventListener('click', () => switchTab(tabQuery, paneQuery));
+        tabIngest.addEventListener('click', () => switchTab(tabIngest, paneIngest));
     </script>
 </body>
 </html>
-
