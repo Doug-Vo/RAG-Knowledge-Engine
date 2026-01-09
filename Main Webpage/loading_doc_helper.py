@@ -14,18 +14,18 @@ import logging
 import datetime
 import asyncio
 import colorama
-from pymongo import MongoClient
+from pymongo import MongoClient, ASCENDING
+
+#  IMPORTS FOR LANGCHAIN 
 from langchain_community.document_loaders import PyPDFLoader, WebBaseLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.docstore.document import Document
-from pytubefix import YouTube
-from googletrans import Translator
-# prevent deprecation
+from langchain_text_splitters import RecursiveCharacterTextSplitter 
+from langchain_core.documents import Document 
 from langchain_mongodb import MongoDBAtlasVectorSearch
 from langchain_huggingface import HuggingFaceEmbeddings
-# ...other imports remain the same...
+from pytubefix import YouTube
+from googletrans import Translator
 
-# --- SETUP COLORED LOGGING ---
+#  SETUP COLORED LOGGING 
 # This section sets up a custom logger to make terminal output easier to read.
 # INFO messages will be green, WARNINGS yellow, and ERRORS bright red.
 
@@ -50,9 +50,7 @@ logger.addHandler(handler)
 logging.getLogger("pypdf").setLevel(logging.ERROR)
 
 
-# --- INITIALIZE HEAVY OBJECTS ONCE ---
-# To improve performance, we initialize resource-intensive objects like models and
-# database clients once when the module is first imported, instead of on every function call.
+#  INITIALIZE HEAVY OBJECTS ONCE 
 
 logging.info("Initializing models and clients for helper module...")
 MONGO_URI = os.environ.get('MONGO_URI', 'YOUR_MONGO_CONNECTION_STRING')
@@ -61,12 +59,12 @@ embedding_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 translator = Translator()
 logging.info("Helper module initialization complete.")
 
-# --- DATABASE CONFIGURATION ---
+#  DATABASE CONFIGURATION 
 DB_NAME = "ai_workbench"
 COLLECTION_NAME = "documents"
 ATLAS_VECTOR_SEARCH_INDEX_NAME = "default"
 
-# --- HELPER FUNCTIONS ---
+#  HELPER FUNCTIONS 
 def clean_srt_captions(srt_text):
     """Parses a raw SRT caption string to extract only the spoken text."""
     lines = srt_text.splitlines()
@@ -75,7 +73,7 @@ def clean_srt_captions(srt_text):
         # Skips empty lines, index numbers, and timestamp lines (e.g., "00:00:01,600 --> 00:00:07,279")
         if line.strip() and not line.strip().isdigit() and '-->' not in line:
             clean_lines.append(line.strip())
-    # Joins the clean lines into a single string of text
+
     return " ".join(clean_lines)
 
 def check_if_source_exists(source_path):
@@ -95,7 +93,7 @@ def check_if_source_exists(source_path):
 def translate_to_english(text, src_lang='auto'):
     """Translates a string of text to English."""
     try:
-        # This handles the newer, asynchronous version of the googletrans library
+
         async def do_translate():
             # 'await' waits for the translation "promise" to be fulfilled
             result = await translator.translate(text, dest='en', src=src_lang)
@@ -122,7 +120,7 @@ def load_youtube(source_url):
     try:
         yt = YouTube(source_url)
         caption = None
-        # Intelligently select the best available caption, prioritizing English
+        # prioritizing English
         if 'a.en' in yt.captions: caption = yt.captions['a.en']
         elif 'en' in yt.captions: caption = yt.captions['en']
         elif len(yt.captions) > 0:
@@ -139,7 +137,7 @@ def load_youtube(source_url):
         
         # If the caption was not in English, translate it
         if caption.code not in ['en', 'a.en']:
-            # It cleans the language code before translation.
+
             source_language_code = caption.code
             if source_language_code.startswith('a.'):
                 source_language_code = source_language_code.split('.')[-1]
