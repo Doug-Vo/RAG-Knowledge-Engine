@@ -3,6 +3,8 @@ import logging
 from flask import Flask, render_template, request, redirect, url_for, flash
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
+from flask_talisman import Talisman
+
 
 #  LANGCHAIN IMPORTS 
 from langchain_openai import ChatOpenAI
@@ -47,20 +49,18 @@ logging.info("RAG chain is ready.")
 
 #  RAG CHAIN SETUP (LCEL) 
 
-# A. Define the Prompt
+#  Prompt
 chat_prompt = ChatPromptTemplate.from_messages([
     ("system", "You are a helpful assistant. Use the following context to answer the user's question. If you don't know, say you don't know.\n\n{context}"),
     ("human", "{input}"),
 ])
 
-# B. Define the Retriever
 retriever = vector_store.as_retriever()
 
-# C. Define Helper to Format Docs
 def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
-# D. Define the Answer Chain (Context + Question -> Answer)
+# QA Chain
 qa_chain = (
     RunnablePassthrough.assign(context=(lambda x: format_docs(x["context"])))
     | chat_prompt
@@ -68,7 +68,7 @@ qa_chain = (
     | StrOutputParser()
 )
 
-# E. Define the Final Chain (Parallel Retrieval)
+# Final Chain (Parallel Retrieval)
 # This ensures we get both the Answer (str) and the Context (list of docs)
 rag_chain = RunnableParallel(
     {"context": retriever, "input": RunnablePassthrough()}
@@ -78,6 +78,15 @@ rag_chain = RunnableParallel(
 #  FLASK APP SETUP 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev_key_only') # Use env var for production
+
+Talisman(app, content_security_policy = None, force_https = True)
+
+# SET UP COOKIE SESSION
+
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -209,4 +218,5 @@ def ingest():
     return redirect(url_for('home', tab= 'ingest'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    debug_mode = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+    app.run(debug=debug_mode)
