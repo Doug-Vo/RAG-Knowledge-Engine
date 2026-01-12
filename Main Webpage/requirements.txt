@@ -26,5 +26,5 @@ pytubefix
 sentence-transformers
 tiktoken
 
-# Translation (Specific version required to fix httpcore error)
-googletrans==4.0.0-rc1
+# Translation
+deep-translator

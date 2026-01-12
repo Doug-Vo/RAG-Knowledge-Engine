@@ -21,3 +21,8 @@ uploads/
 # IDE settings
 .vscode/
 .idea/
+
+# Log
+*.log
+README.md
+DEPLOY.md

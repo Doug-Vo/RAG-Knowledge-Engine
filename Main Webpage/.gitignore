@@ -11,9 +11,8 @@ env/
 # Environment variables 
 .env
 
-# Uploaded files and logs
+# Uploaded files and
 uploads/
-*.log
 *.pdf
 
 # IDE settings
@@ -23,3 +22,7 @@ uploads/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Log
+*.log
+DEPLOY.md

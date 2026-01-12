@@ -12,7 +12,6 @@ This file contains all the core logic for the data ingestion pipeline, including
 import os
 import logging
 import datetime
-import asyncio
 import colorama
 from pymongo import MongoClient, ASCENDING
 
@@ -23,7 +22,7 @@ from langchain_core.documents import Document
 from langchain_mongodb import MongoDBAtlasVectorSearch
 from langchain_huggingface import HuggingFaceEmbeddings
 from pytubefix import YouTube
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 
 #  SETUP COLORED LOGGING 
 # This section sets up a custom logger to make terminal output easier to read.
@@ -56,7 +55,6 @@ logging.info("Initializing models and clients for helper module...")
 MONGO_URI = os.environ.get('MONGO_URI', 'YOUR_MONGO_CONNECTION_STRING')
 client = MongoClient(MONGO_URI)
 embedding_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-translator = Translator()
 logging.info("Helper module initialization complete.")
 
 #  DATABASE CONFIGURATION 
@@ -90,19 +88,25 @@ def check_if_source_exists(source_path):
     logging.info(f"Source '{source_path}' is new.")
     return False
 
-def translate_to_english(text, src_lang='auto'):
-    """Translates a string of text to English."""
+def translate_to_english(text, src_lang='auto', max_chars=4500):
+    """
+    Safely translate large text by splitting it into chunks
+    to avoid provider limits.
+    """
     try:
+        translator = GoogleTranslator(source=src_lang, target='en')
+        translated_chunks = []
 
-        async def do_translate():
-            # 'await' waits for the translation "promise" to be fulfilled
-            result = await translator.translate(text, dest='en', src=src_lang)
-            return result.text
-        # Runs the async translation function from our synchronous code
-        return asyncio.run(do_translate())
+        for i in range(0, len(text), max_chars):
+            chunk = text[i:i + max_chars]
+            translated_chunks.append(translator.translate(chunk))
+
+        return " ".join(translated_chunks)
+
     except Exception as e:
         logging.error(f"Translation failed: {e}")
         return None
+
 
 def load_pdf(source_path):
     """Loads a PDF file from a local path and returns its content as LangChain Documents."""
