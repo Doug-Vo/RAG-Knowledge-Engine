@@ -13,8 +13,8 @@ langchain-core
 langchain-community
 langchain-openai
 langchain-mongodb
-langchain-huggingface
 langchain-text-splitters
+
 
 # Database
 pymongo
@@ -23,7 +23,6 @@ pymongo
 pypdf
 beautifulsoup4
 pytubefix
-sentence-transformers
 tiktoken
 
 # Translation

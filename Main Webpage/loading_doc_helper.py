@@ -20,7 +20,8 @@ from langchain_community.document_loaders import PyPDFLoader, WebBaseLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter 
 from langchain_core.documents import Document 
 from langchain_mongodb import MongoDBAtlasVectorSearch
-from langchain_huggingface import HuggingFaceEmbeddings
+# from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from pytubefix import YouTube
 from deep_translator import GoogleTranslator
 
@@ -54,7 +55,7 @@ logging.getLogger("pypdf").setLevel(logging.ERROR)
 logging.info("Initializing models and clients for helper module...")
 MONGO_URI = os.environ.get('MONGO_URI', 'YOUR_MONGO_CONNECTION_STRING')
 client = MongoClient(MONGO_URI)
-embedding_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
 logging.info("Helper module initialization complete.")
 
 #  DATABASE CONFIGURATION 

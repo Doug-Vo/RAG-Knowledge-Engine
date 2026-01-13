@@ -1,7 +1,9 @@
 # Python caches
+*.pyc
 __pycache__/
 *.py[cod]
 *$py.class
+
 
 # Virtual environments
 venv/
@@ -26,3 +28,5 @@ Thumbs.db
 # Log
 *.log
 DEPLOY.md
+Main Webpage/__pycache__/loading_doc_helper.cpython-312.pyc
+*.pyc
