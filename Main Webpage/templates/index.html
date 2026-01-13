@@ -18,9 +18,17 @@
 
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
         <div class="bg-white rounded-lg shadow-xl p-6 md:p-8">
+            
             <div class="text-center mb-6">
                 <h1 class="text-4xl font-bold text-gray-800">AI Document Workbench</h1>
                 <p class="text-gray-500 mt-2">Interact with your documents using advanced AI.</p>
+                
+                <a href="https://github.com/Doug-Vo" target="_blank" class="inline-flex items-center mt-3 text-gray-600 hover:text-gray-900 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="text-sm font-medium">Created by Doug-Vo</span>
+                </a>
             </div>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -40,17 +48,14 @@
 
             <div class="mb-6 border-b border-gray-200">
                 <nav class="flex space-x-4" aria-label="Tabs">
-                    
                     <button id="tab-about" 
                         class="tab-button {% if active_tab == 'about' %}active{% endif %} text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg">
                         About & Info
                     </button>
-                    
                     <button id="tab-query" 
                         class="tab-button {% if active_tab == 'query' %}active{% endif %} text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg">
                         Ask a Question
                     </button>
-                    
                     <button id="tab-ingest" 
                         class="tab-button {% if active_tab == 'ingest' %}active{% endif %} text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg">
                         Add Knowledge
@@ -59,10 +64,8 @@
             </div>
 
             <div>
-                
                 <div id="pane-about" class="{% if active_tab != 'about' %}hidden{% endif %}">
                     <div class="space-y-6 text-gray-700">
-                        
                         <div>
                             <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome to the AI Document Workbench</h2>
                             <p class="leading-relaxed">
@@ -87,9 +90,34 @@
 
                         <hr class="border-gray-200">
 
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Cloud Architecture</h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-gray-50 p-4 rounded border border-gray-200">
+                                    <div class="flex items-center mb-2">
+                                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                        <h4 class="font-bold text-gray-800">Docker Containerization</h4>
+                                    </div>
+                                    <p class="text-sm">
+                                        The application is fully containerized using <strong>Docker</strong>. This ensures consistent performance across different environments by packaging the Python runtime, system dependencies, and application code into a single, lightweight image.
+                                    </p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded border border-gray-200">
+                                    <div class="flex items-center mb-2">
+                                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                                        <h4 class="font-bold text-gray-800">Azure Deployment</h4>
+                                    </div>
+                                    <p class="text-sm">
+                                        The live site is hosted on <strong>Microsoft Azure App Service</strong>. The Docker image is pushed to a private Azure Container Registry (ACR), and the web app pulls and runs the latest version automatically.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="border-gray-200">
+
                         <div class="bg-blue-50 p-4 rounded-lg">
                             <h3 class="text-xl font-semibold text-blue-800 mb-3">Knowledge Base Status</h3>
-                            
                             <div class="mb-4">
                                 <h4 class="font-bold text-blue-900">📚 Permanent Documents (Always Available):</h4>
                                 <ul class="list-disc list-inside text-sm text-blue-800 mt-1 ml-2 space-y-1">
@@ -101,7 +129,6 @@
                                     <li><a href="https://en.wikipedia.org/wiki/Donald_Trump" target="_blank" class="underline hover:text-blue-600">Donald Trump [Wiki]</a></li>
                                 </ul>
                             </div>
-
                             <div>
                                 <h4 class="font-bold text-blue-900">⏳ Your Uploads (Temporary):</h4>
                                 <p class="text-sm text-blue-800 mt-1 ml-2">
@@ -114,6 +141,25 @@
                 </div>
 
                 <div id="pane-query" class="{% if active_tab != 'query' %}hidden{% endif %}">
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded shadow-sm">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-blue-800">Verify the AI's Response</h3>
+                                <div class="mt-2 text-sm text-blue-700">
+                                    <p>
+                                        When the model answers, always double-check the <strong>"Sources"</strong> listed below the message. 
+                                        If the source text does not align with the answer, the response may be unreliable (hallucination).
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <form action="/" method="POST" class="space-y-6">
                         <div>
                             <label for="question" class="block text-sm font-medium text-gray-700">Your Question</label>
