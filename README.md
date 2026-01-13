@@ -1,6 +1,8 @@
-# 🧠 AI Document Workbench (RAG Knowledge Engine)
+# AI Document Workbench (RAG Knowledge Engine)
 
  **Retrieval Augmented Generation (RAG)** application that allows users to "chat" with their documents. It uses a **Hybrid Knowledge Base** architecture, supporting both permanent organizational documents and temporary user uploads that auto-expire.
+
+## Live website: https://rag-application.azurewebsites.net
 
 ## ✨ Features
 
@@ -14,18 +16,27 @@
 * **Modern AI Stack:**
     * **LLM:** OpenAI GPT-4o-mini (Cost-effective & fast).
     * **Vector Store:** MongoDB Atlas Vector Search.
-    * **Embeddings:** HuggingFace (`all-MiniLM-L6-v2`) running locally for privacy/cost.
+    * **Embeddings:** OpenAI `text-embedding-3-small` (1536 Dimensions).
     * **Framework:** LangChain v0.3 (LCEL Architecture).
 
 ## 🔧 Technical Pipeline
 
 1.  **Ingestion:** `LangChain Community Loaders` (PyPDF, WebBase) & `pytubefix` (YouTube).
-2.  **Processing:** Text is split into chunks (RecursiveCharacterTextSplitter) and translated if necessary (`googletrans`).
-3.  **Storage:** Embeddings are generated via `sentence-transformers` and stored in **MongoDB Atlas**.
+2.  **Processing:** Text is split into chunks (`RecursiveCharacterTextSplitter`) and translated if necessary (`deep-translator`).
+3.  **Storage:** Embeddings are generated via `text-embedding-3-small` and stored in **MongoDB Atlas**.
 4.  **Retrieval:** `MongoDBAtlasVectorSearch` performs cosine similarity search.
 5.  **Generation:** `LangChain LCEL` pipes retrieved context + query to `OpenAI GPT-4o-mini`.
 
-## 🚀 Getting Started
+## 📚 Tech Stack Details
+
+* **Frontend:** HTML5, TailwindCSS, Vanilla JS
+* **Backend:** Flask (Python)
+* **AI Orchestration:** LangChain Core (Runnables/LCEL)
+* **Translation:** Deep Translator 
+
+---
+---
+# Getting Started
 
 ### Prerequisites
 
@@ -47,7 +58,7 @@
     ```
 
 3.  **Set up Environment Variables**
-    Create a `.env` file in the root directory:
+    Create a `.env` file in the `Main Webpage` directory:
     ```env
     MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/?retryWrites=true&w=majority
     OPENAI_API_KEY=sk-proj-....
@@ -60,14 +71,14 @@
     * **Create a Vector Search Index** (JSON Editor):
         ```json
         {
-          "fields": [
-            {
-              "numDimensions": 384,
-              "path": "embedding",
-              "similarity": "cosine",
-              "type": "vector"
-            }
-          ]
+            "fields": [
+                {
+                "type": "vector",
+                "path": "embedding",
+                "numDimensions": 1536,
+                "similarity": "cosine"
+                }
+            ]
         }
         ```
 
@@ -87,16 +98,9 @@
 | :--- | :--- | :--- |
 | `MONGO_URI` | Your full MongoDB Atlas connection string. | **Yes** |
 | `OPENAI_API_KEY` | Your OpenAI API Key for the LLM. | **Yes** |
-| `SECRET_KEY` | A random string for Flask session security. | Yes |
-| `LANGCHAIN_TRACING_V2`| Set to `true` to enable LangSmith debugging. | No |
-| `LANGCHAIN_API_KEY` | Required only if Tracing is enabled. | No |
+| `SECRET_KEY` | A random string for Flask session | **No** 
 
-## 📚 Tech Stack Details
 
-* **Frontend:** HTML5, TailwindCSS, Vanilla JS
-* **Backend:** Flask (Python)
-* **AI Orchestration:** LangChain Core (Runnables/LCEL)
-* **Translation:** GoogleTrans (Unofficial API)
 
 ---
 *Created by Doug Vo*
