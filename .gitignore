@@ -1,6 +1,7 @@
 # Python caches
 *.pyc
 __pycache__/
+Main Webpage/__pycache__/
 *.py[cod]
 *$py.class
 
