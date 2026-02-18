@@ -33,13 +33,13 @@ collection = client[DB_NAME][COLLECTION_NAME]
 if not os.environ.get("OPENAI_API_KEY"):
     logging.warning("OPENAI_API_KEY not found! RAG will fail.")
 
-# 1. Initialize LLM
+# Initialize LLM
 llm = ChatOpenAI(
     model="gpt-4o-mini",  # Updated to latest cost-effective model
     temperature=0,
 )
 
-# 2. Initialize Vector Store
+# Initialize Vector Store
 vector_store = MongoDBAtlasVectorSearch(
     collection=collection, 
     embedding=embedding_model,
@@ -49,11 +49,39 @@ logging.info("RAG chain is ready.")
 
 #  RAG CHAIN SETUP (LCEL) 
 
-#  Prompt
+#  RAG Prompt (refined & plain text)
 chat_prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a helpful assistant. Use the following context to answer the user's question. If you don't know, say you don't know.\n\n{context}"),
+    ("system", """You are an expert research assistant. Your goal is to provide accurate, well-structured answers based STRICTLY on the provided context.
+
+    Instructions:
+    1. Use ONLY the context provided below. DO NOT use outside knowledge.
+    2. Write in PLAIN TEXT only. Do NOT use Markdown formatting.
+    3. STRICTLY FORBIDDEN: Do not use bold (**text**), italics (*text*), or headers (#).
+    4. You may use simple hyphens (-) for lists, but no other styling.
+
+    Context:
+    {context}"""),
     ("human", "{input}"),
 ])
+
+# Judge Prompt
+judge_prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a strict grader. You check if an answer is supported by the context."),
+    ("human", """
+    CONTEXT: {context}
+    
+    STUDENT ANSWER: {answer}
+    
+    Task:
+    1. Check if the STUDENT ANSWER is fully supported by the CONTEXT.
+    2. If the answer includes facts NOT in the context, say "HALLUCINATION".
+    3. If the answer is fully supported, say "ACCURATE".
+    
+    Return ONLY the single word result.
+    """)
+])
+
+
 
 retriever = vector_store.as_retriever()
 
@@ -65,6 +93,13 @@ qa_chain = (
     RunnablePassthrough.assign(context=(lambda x: format_docs(x["context"])))
     | chat_prompt
     | llm
+    | StrOutputParser()
+)
+
+# judge_chain
+judge_chain = (
+    judge_prompt 
+    | llm 
     | StrOutputParser()
 )
 
@@ -98,6 +133,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def home():
     answer = None
     question = None
+    grade = None
     source_documents = []
 
     active_tab = 'about'
@@ -124,6 +160,28 @@ def home():
                 # Extract Documents
                 retrieved_docs = result.get("context", [])
                 logging.info(f"Retrieved {len(retrieved_docs)} documents.")
+
+
+                formatted_context = format_docs(retrieved_docs)
+
+                # Ask the judge
+                raw_grade = judge_chain.invoke({
+                    "context": formatted_context,
+                    "answer": answer,
+                })
+
+                # Normalize judge output to get the expected grade
+                grade = "UNKNOWN"
+                if raw_grade:
+                    try:
+                        candidate = raw_grade.strip().split()[0].strip('.,').upper()
+                        if candidate in ("ACCURATE", "HALLUCINATION"):
+                            grade = candidate
+                    except Exception:
+                        grade = "UNKNOWN"
+
+                logging.info(f"LLM Judge Score: {grade} (raw: {raw_grade})")
+
 
                 if not retrieved_docs:
                     source_documents = ["No relevant documents found in knowledge base."]
@@ -152,6 +210,7 @@ def home():
                            answer=answer,
                            question=question,
                            source_documents=source_documents,
+                           grade = grade,
                            active_tab = active_tab)
 
 
