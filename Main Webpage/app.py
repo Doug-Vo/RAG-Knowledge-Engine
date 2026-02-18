@@ -1,6 +1,6 @@
 import os
 import logging
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from flask_talisman import Talisman
@@ -79,7 +79,7 @@ rag_chain = RunnableParallel(
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev_key_only') # Use env var for production
 
-Talisman(app, content_security_policy = None, force_https = True)
+talisman = Talisman(app, content_security_policy = None, force_https = True)
 
 # SET UP COOKIE SESSION
 
@@ -216,6 +216,30 @@ def ingest():
         flash(f"Error ingesting '{source_path}': {str(e)}", "error")
 
     return redirect(url_for('home', tab= 'ingest'))
+
+# Health Check for Azure
+@app.route('/healthz', methods=['GET'])
+@talisman(force_https=False)
+def health_check():
+    try:
+        if 'client' not in globals() or client is None:
+            raise Exception('database client not configured')
+
+        # Ping MongoDB 
+        result = client.admin.command('ping')
+        ok = None
+        if isinstance(result, dict):
+            ok = result.get('ok')
+
+        if ok is not None and float(ok) == 1.0:
+            return jsonify(status="healthy", database="connected"), 200
+        else:
+            logging.error(f"Health ping returned unexpected value: {result}")
+            return jsonify(status="unhealthy", reason="ping_failed", detail=result), 500
+        
+    except Exception as e:
+        logging.error(f"Health check failed: {e}", exc_info=True)
+        return jsonify(status="unhealthy", reason=str(e)), 500
 
 if __name__ == '__main__':
     debug_mode = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
