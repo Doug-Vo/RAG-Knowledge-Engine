@@ -84,11 +84,67 @@
                                 This tool allows you to "chat" with your documents. Instead of relying solely on general knowledge, this AI looks up specific information from the files and links you provide to give you accurate, sourced answers.
                             </p>
                         </div>
+                        
+                        <hr class="border-gray-200">
+
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4">Technical Decisions & Architecture</h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                
+                                <div class="bg-gray-50 p-4 rounded border border-gray-200">
+                                    <div class="flex items-center mb-2">
+                                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        <h4 class="font-bold text-gray-800">Embedding Optimization</h4>
+                                    </div>
+                                    <p class="text-sm mb-2">
+                                        We initially experimented with the local <code>sentence-transformers/all-MiniLM-L6-v2</code> model. 
+                                    </p>
+                                    <p class="text-sm"> 
+                                        However, to optimize cloud deployment and minimize server compute load, we opted for an API-based embedding approach using OpenAI.
+                                    </p>
+                                </div>
+
+                                <div class="bg-gray-50 p-4 rounded border border-gray-200">
+                                    <div class="flex items-center mb-2">
+                                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <h4 class="font-bold text-gray-800">LLM-as-a-Judge</h4>
+                                    </div>
+                                    <p class="text-sm mb-2">
+                                        We conducted a <a href="https://github.com/Doug-Vo/RAG-Knowledge-Engine/blob/main/Proof_of_concept.ipynb" target="_blank" class="text-blue-600 hover:underline font-semibold">Proof of Concept using RAGAS</a> for benchmarking. 
+                                    </p>
+                                    <p class="text-sm">    
+                                        To keep API token load low in production, we replaced the RAGAS framework with a lightweight, built-in "LLM-as-a-judge" to verify accuracy on the fly.
+                                    </p>
+                                </div>
+
+                                <div class="bg-gray-50 p-4 rounded border border-gray-200">
+                                    <div class="flex items-center mb-2">
+                                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                        <h4 class="font-bold text-gray-800">Docker Containerization</h4>
+                                    </div>
+                                    <p class="text-sm">
+                                        The application is fully containerized using <strong>Docker</strong>. This ensures consistent performance and streamlines the CI/CD pipeline.
+                                    </p>
+                                </div>
+
+                                <div class="bg-gray-50 p-4 rounded border border-gray-200">
+                                    <div class="flex items-center mb-2">
+                                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                                        <h4 class="font-bold text-gray-800">Azure Deployment</h4>
+                                    </div>
+                                    <p class="text-sm">
+                                        The live site is hosted on <strong>Microsoft Azure App Service</strong>. The Docker image is pushed to a private Azure Container Registry (ACR).
+                                    </p>
+                                </div>
+
+                            </div>
+                        </div>
 
                         <hr class="border-gray-200">
 
                         <div>
-                            <h3 class="text-xl font-semibold text-gray-800 mb-2">How it Works (RAG)</h3>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">How it Works</h3>
                             <p class="mb-4">
                                 This application uses a technique called <strong>Retrieval-Augmented Generation (RAG)</strong>. Here is the process:
                             </p>
@@ -98,32 +154,6 @@
                                 <li><strong>Retrieval:</strong> When you ask a question, we search the database for the chunks most similar to your query.</li>
                                 <li><strong>Generation:</strong> We send your question + the relevant chunks to the AI model, which writes an answer based <em>only</em> on that information.</li>
                             </ol>
-                        </div>
-
-                        <hr class="border-gray-200">
-
-                        <div>
-                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Cloud Architecture</h3>
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div class="bg-gray-50 p-4 rounded border border-gray-200">
-                                    <div class="flex items-center mb-2">
-                                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                                        <h4 class="font-bold text-gray-800">Docker Containerization</h4>
-                                    </div>
-                                    <p class="text-sm">
-                                        The application is fully containerized using <strong>Docker</strong>. This ensures consistent performance across different environments by packaging the Python runtime, system dependencies, and application code into a single, lightweight image.
-                                    </p>
-                                </div>
-                                <div class="bg-gray-50 p-4 rounded border border-gray-200">
-                                    <div class="flex items-center mb-2">
-                                        <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
-                                        <h4 class="font-bold text-gray-800">Azure Deployment</h4>
-                                    </div>
-                                    <p class="text-sm">
-                                        The live site is hosted on <strong>Microsoft Azure App Service</strong>. The Docker image is pushed to a private Azure Container Registry (ACR), and the web app pulls and runs the latest version automatically.
-                                    </p>
-                                </div>
-                            </div>
                         </div>
 
                         <hr class="border-gray-200">
