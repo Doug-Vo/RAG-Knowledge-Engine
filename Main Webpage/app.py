@@ -256,8 +256,8 @@ def ingest():
         
         # YouTube Logic
         elif 'youtube.com' in source_path or 'youtu.be' in source_path:
-            source_data = load_youtube(source_path)
-        
+            raise Exception("Loading Youtube is currently not possible due to Outdated Pipeline and Youtube blocking IPs.\
+                             I am looking for alternative. Please stay tuned. Thank you!")
         # Web Link Logic
         else:
             source_data = load_link(source_path)
@@ -267,8 +267,8 @@ def ingest():
             chunks = split_text(source_data)
             embed_and_upload(chunks)
             flash(f"Successfully ingested '{source_path}'.", "success")
-        else:
-            raise Exception("No text could be extracted.")
+
+            
 
     except Exception as e:
         logging.error(f"Ingestion failed: {e}", exc_info=True)

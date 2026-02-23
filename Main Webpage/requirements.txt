@@ -22,8 +22,5 @@ pymongo
 # Document Loading & Processing
 pypdf
 beautifulsoup4
-pytubefix
+youtube-transcript-api
 tiktoken
-
-# Translation
-deep-translator
