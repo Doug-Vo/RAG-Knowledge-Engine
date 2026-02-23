@@ -26,4 +26,4 @@ youtube-transcript-api
 tiktoken
 
 # Translation
-# deep-translator
+# deep-translator # Might need later
