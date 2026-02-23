@@ -24,3 +24,6 @@ pypdf
 beautifulsoup4
 youtube-transcript-api
 tiktoken
+
+# Translation
+# deep-translator # Might need later
