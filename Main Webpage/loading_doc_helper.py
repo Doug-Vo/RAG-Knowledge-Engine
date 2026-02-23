@@ -22,8 +22,10 @@ from langchain_core.documents import Document
 from langchain_mongodb import MongoDBAtlasVectorSearch
 # from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_openai import OpenAIEmbeddings
-from pytubefix import YouTube
-from deep_translator import GoogleTranslator
+from youtube_transcript_api import YouTubeTranscriptApi
+
+from youtube_transcript_api.proxies import WebshareProxyConfig
+from urllib.parse import urlparse, parse_qs
 
 #  SETUP COLORED LOGGING 
 # This section sets up a custom logger to make terminal output easier to read.
@@ -63,17 +65,6 @@ DB_NAME = "ai_workbench"
 COLLECTION_NAME = "documents"
 ATLAS_VECTOR_SEARCH_INDEX_NAME = "default"
 
-#  HELPER FUNCTIONS 
-def clean_srt_captions(srt_text):
-    """Parses a raw SRT caption string to extract only the spoken text."""
-    lines = srt_text.splitlines()
-    clean_lines = []
-    for line in lines:
-        # Skips empty lines, index numbers, and timestamp lines (e.g., "00:00:01,600 --> 00:00:07,279")
-        if line.strip() and not line.strip().isdigit() and '-->' not in line:
-            clean_lines.append(line.strip())
-
-    return " ".join(clean_lines)
 
 def check_if_source_exists(source_path):
     """
@@ -89,88 +80,88 @@ def check_if_source_exists(source_path):
     logging.info(f"Source '{source_path}' is new.")
     return False
 
-def translate_to_english(text, src_lang='auto', max_chars=4500):
-    """
-    Safely translate large text by splitting it into chunks
-    to avoid provider limits.
-    """
-    try:
-        translator = GoogleTranslator(source=src_lang, target='en')
-        translated_chunks = []
-
-        for i in range(0, len(text), max_chars):
-            chunk = text[i:i + max_chars]
-            translated_chunks.append(translator.translate(chunk))
-
-        return " ".join(translated_chunks)
-
-    except Exception as e:
-        logging.error(f"Translation failed: {e}")
-        return None
-
 
 def load_pdf(source_path):
     """Loads a PDF file from a local path and returns its content as LangChain Documents."""
     if not source_path.endswith('.pdf'):
         logging.error(f"Error! {source_path} is not a PDF file.")
-        return None
+        return []
     logging.info(f"Loading PDF: {source_path}")
     loader = PyPDFLoader(source_path)
     # Each page of the PDF becomes a separate Document object
     return loader.load()
 
+# New fix, changed from PyTube to youtube-transcript-api from LangChain,
+#  and a new helper function to help with the parsing
+def extract_video_id(url: str) -> str | None:
+    parsed = urlparse(url)
+    host = parsed.hostname or ""
+
+    if "youtu.be" in host:
+        return parsed.path.strip("/")
+
+    if "youtube.com" in host:
+        if parsed.path == "/watch":
+            return parse_qs(parsed.query).get("v", [None])[0]
+
+        if parsed.path.startswith("/embed/"):
+            return parsed.path.split("/")[2]
+
+        if parsed.path.startswith("/shorts/"):
+            return parsed.path.split("/")[2]
+
+    return []
+
+
 def load_youtube(source_url):
-    """Loads the transcript from a YouTube URL, processes it, and returns a LangChain Document."""
-    logging.info(f"Loading YouTube video: {source_url}")
     try:
-        yt = YouTube(source_url)
-        caption = None
-        # prioritizing English
-        if 'a.en' in yt.captions: caption = yt.captions['a.en']
-        elif 'en' in yt.captions: caption = yt.captions['en']
-        elif len(yt.captions) > 0:
-            caption = list(yt.captions)[0]
-            logging.warning(f"No English caption found. Using first available: '{caption.name}'")
+        video_id = extract_video_id(source_url)
+        if not video_id:
+            logging.error("Invalid YouTube URL")
+            return []
         
-        if not caption:
-            logging.error(f"Error! {source_url} does not have any available captions.")
-            return None
-            
-        # Clean the raw SRT format to get pure text
-        processed_caption = clean_srt_captions(caption.generate_srt_captions())
-        final_text = processed_caption
         
-        # If the caption was not in English, translate it
-        if caption.code not in ['en', 'a.en']:
-
-            source_language_code = caption.code
-            if source_language_code.startswith('a.'):
-                source_language_code = source_language_code.split('.')[-1]
-                logging.info(f"Cleaned auto-generated lang code from '{caption.code}' to '{source_language_code}' for translator.")
-
-            logging.info(f"Translating content from '{source_language_code}' to English...")
-            final_text = translate_to_english(processed_caption, src_lang=source_language_code)
-
-        if not final_text:
-            raise Exception("Translation failed or returned empty.")
-
-        # Package the final text and metadata into a single LangChain Document object
-        doc = Document(
-            page_content=final_text,
-            metadata={"source": source_url, "title": yt.title, "original_language": caption.code}
+        ytt_api = YouTubeTranscriptApi(
+            proxy_config=WebshareProxyConfig(
+                proxy_username="oqpqjcmq-rotate",
+                proxy_password="xbf4azvcdqyw",
+            )
         )
-        # Return as a list to be consistent with the other loaders
-        return [doc]
+
+        transcript_list = ytt_api.list(video_id)
+
+        try:
+            transcript = transcript_list.find_transcript(['en', 'en-US', 'a.en'])
+        except Exception:
+            transcripts = list(transcript_list)
+            if not transcripts:
+                logging.error("No transcripts available")
+                return []
+            transcript = transcripts[0].translate('en')
+
+        # Join all text into one string
+        full_text = " ".join([t.text for t in transcript.fetch()])
+
+        docs = [
+            Document(
+                page_content=full_text,
+                metadata={
+                    "source": source_url,
+                    "video_id": video_id
+                }
+            )
+        ]
+        return docs
 
     except Exception as e:
-        logging.error(f"Failed to load YouTube URL {source_url}: {e}")
-        return None
+        logging.error(f"YouTube load failed: {e}")
+        return []
 
 def load_link(source_url):
     """Loads the text content from a general web page URL."""
     if not source_url.startswith('https://'):
         logging.error(f"Error! {source_url} is not a secure (https) link.")
-        return None
+        return []
     logging.info(f"Loading web page: {source_url}")
     loader = WebBaseLoader(source_url)
     return loader.load()

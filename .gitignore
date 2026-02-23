@@ -31,3 +31,8 @@ Thumbs.db
 DEPLOY.md
 Main Webpage/__pycache__/loading_doc_helper.cpython-312.pyc
 *.pyc
+
+
+# Testing environment
+
+Main Webpage/test.ipynb
