@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-AI Document Workbench — a Flask + RAG application that lets users chat with uploaded documents (PDF, URL, YouTube). The working directory for the app is `Main Webpage/`.
+AI Document Workbench — a Flask + RAG application that lets users chat with uploaded documents (PDF and URL). The working directory for the app is `Main Webpage/`.
 
 ## Commands
 
@@ -36,7 +36,7 @@ FLASK_DEBUG=false   # optional
 ### RAG Pipeline (Ingestion → Retrieval → Generation)
 
 **Ingestion** (`loading_doc_helper.py`):
-- `load_pdf()`, `load_link()`, `load_youtube()` → raw documents
+- `load_pdf()`, `load_link()` → raw documents
 - `RecursiveCharacterTextSplitter` (1000-char chunks, 150-char overlap)
 - `check_if_source_exists()` guards against duplicate ingestion
 - `embed_and_upload()` batches chunks to MongoDB Atlas Vector Search
@@ -55,7 +55,7 @@ FLASK_DEBUG=false   # optional
 | Route | Method | Purpose |
 |---|---|---|
 | `/` | GET/POST | Main QA interface — POST triggers the full RAG chain |
-| `/ingest` | POST | Ingestion endpoint — accepts PDF file, URL, or YouTube link |
+| `/ingest` | POST | Ingestion endpoint — accepts PDF file or URL |
 | `/healthz` | GET | Azure health check — pings MongoDB admin command |
 
 ### Key Design Decisions

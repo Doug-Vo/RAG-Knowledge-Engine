@@ -27,5 +27,11 @@ uploads/
 README.md
 DEPLOY.md
 
-# Testing environment
-Main Webpage/test.ipynb
+# Testing and dev-only files
+tests/
+conftest.py
+pytest.ini
+.pytest_cache/
+.coverage
+htmlcov/
+*.ipynb

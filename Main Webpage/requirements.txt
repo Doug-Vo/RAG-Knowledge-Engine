@@ -17,13 +17,18 @@ langchain-text-splitters
 
 
 # Database
-pymongo
+pymongo>=4.7
 
 # Document Loading & Processing
 pypdf
 beautifulsoup4
-youtube-transcript-api
 tiktoken
 
 # Translation
 # deep-translator # Might need later
+
+# Dev / Testing
+pytest
+pytest-flask
+pytest-mock
+pytest-cov

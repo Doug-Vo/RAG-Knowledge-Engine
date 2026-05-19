@@ -2,8 +2,7 @@
 A helper module for the AI Document Workbench application.
 
 This file contains all the core logic for the data ingestion pipeline, including:
-- Loading data from PDFs, web pages, and YouTube videos.
-- Translating non-English content.
+- Loading data from PDFs and web pages.
 - Checking for duplicate sources in the database.
 - Splitting documents into chunks.
 - Creating text embeddings and uploading them to a MongoDB Atlas vector store.
@@ -12,20 +11,15 @@ This file contains all the core logic for the data ingestion pipeline, including
 import os
 import logging
 import datetime
-import colorama
-from pymongo import MongoClient, ASCENDING
+import colorama  # type: ignore[import-untyped]
+from pymongo import MongoClient
 
 #  IMPORTS FOR LANGCHAIN 
 from langchain_community.document_loaders import PyPDFLoader, WebBaseLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter 
-from langchain_core.documents import Document 
 from langchain_mongodb import MongoDBAtlasVectorSearch
 # from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_openai import OpenAIEmbeddings
-from youtube_transcript_api import YouTubeTranscriptApi
-
-from youtube_transcript_api.proxies import WebshareProxyConfig
-from urllib.parse import urlparse, parse_qs
 
 #  SETUP COLORED LOGGING 
 # This section sets up a custom logger to make terminal output easier to read.
@@ -56,7 +50,7 @@ logging.getLogger("pypdf").setLevel(logging.ERROR)
 
 logging.info("Initializing models and clients for helper module...")
 MONGO_URI = os.environ.get('MONGO_URI', 'YOUR_MONGO_CONNECTION_STRING')
-client = MongoClient(MONGO_URI)
+client: MongoClient = MongoClient(MONGO_URI)
 embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
 logging.info("Helper module initialization complete.")
 
@@ -73,7 +67,7 @@ def check_if_source_exists(source_path):
     """
     logging.info(f"Checking for existing source: {source_path}")
     collection = client[DB_NAME][COLLECTION_NAME]
-    existing_doc = collection.find_one({"source": source_path})
+    existing_doc = collection.find_one({"metadata.source": source_path})
     if existing_doc:
         logging.warning(f"Source '{source_path}' already exists in the database.")
         return True
@@ -90,72 +84,6 @@ def load_pdf(source_path):
     loader = PyPDFLoader(source_path)
     # Each page of the PDF becomes a separate Document object
     return loader.load()
-
-# New fix, changed from PyTube to youtube-transcript-api from LangChain,
-#  and a new helper function to help with the parsing
-def extract_video_id(url: str) -> str | None:
-    parsed = urlparse(url)
-    host = parsed.hostname or ""
-
-    if "youtu.be" in host:
-        return parsed.path.strip("/")
-
-    if "youtube.com" in host:
-        if parsed.path == "/watch":
-            return parse_qs(parsed.query).get("v", [None])[0]
-
-        if parsed.path.startswith("/embed/"):
-            return parsed.path.split("/")[2]
-
-        if parsed.path.startswith("/shorts/"):
-            return parsed.path.split("/")[2]
-
-    return []
-
-
-def load_youtube(source_url):
-    try:
-        video_id = extract_video_id(source_url)
-        if not video_id:
-            logging.error("Invalid YouTube URL")
-            return []
-        
-        
-        ytt_api = YouTubeTranscriptApi(
-            proxy_config=WebshareProxyConfig(
-                proxy_username="oqpqjcmq-rotate",
-                proxy_password="xbf4azvcdqyw",
-            )
-        )
-
-        transcript_list = ytt_api.list(video_id)
-
-        try:
-            transcript = transcript_list.find_transcript(['en', 'en-US', 'a.en'])
-        except Exception:
-            transcripts = list(transcript_list)
-            if not transcripts:
-                logging.error("No transcripts available")
-                return []
-            transcript = transcripts[0].translate('en')
-
-        # Join all text into one string
-        full_text = " ".join([t.text for t in transcript.fetch()])
-
-        docs = [
-            Document(
-                page_content=full_text,
-                metadata={
-                    "source": source_url,
-                    "video_id": video_id
-                }
-            )
-        ]
-        return docs
-
-    except Exception as e:
-        logging.error(f"YouTube load failed: {e}")
-        return []
 
 def load_link(source_url):
     """Loads the text content from a general web page URL."""
