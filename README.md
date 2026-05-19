@@ -120,6 +120,3 @@ To ensure production-grade reliability, I made a *Jupyter Notebook* evaluating t
 | `SECRET_KEY` | A random string for Flask session | **No** 
 
 
-
----
-*Created by Doug Vo*

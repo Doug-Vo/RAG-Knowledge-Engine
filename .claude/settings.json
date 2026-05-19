@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(py -3.12 *)",
+      "Bash(pip install *)",
+      "Bash(py -3.12 -m pip install *)",
+      "Bash(docker build *)",
+      "Bash(docker run *)",
+      "Bash(git status)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\ducth\\\\Translation-Project\" -Recurse -Force)",
+      "Bash(Select-Object FullName)",
+      "Bash(Sort-Object FullName)",
+      "Bash(Select-String \"^\\(Name|Version\\)\")",
+      "WebFetch(domain:platform.openai.com)",
+      "Bash(Select-String \"Version|Location\")",
+      "WebSearch"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(* --no-verify)",
+      "Bash(git push --force*)"
+    ]
+  }
+}

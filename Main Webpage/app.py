@@ -3,7 +3,7 @@ import logging
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
-from flask_talisman import Talisman
+from flask_talisman import Talisman  # type: ignore[import-untyped]
 
 
 #  LANGCHAIN IMPORTS 
@@ -15,7 +15,7 @@ from langchain_core.output_parsers import StrOutputParser
 
 #  HELPER IMPORTS 
 from loading_doc_helper import (
-    load_pdf, load_youtube, load_link, 
+    load_pdf, load_link,
     split_text, embed_and_upload,
     check_if_source_exists,
     DB_NAME, COLLECTION_NAME, embedding_model, client, ATLAS_VECTOR_SEARCH_INDEX_NAME
@@ -155,7 +155,7 @@ def home():
                 
                 # Extract Answer
                 answer = result["answer"]
-                logging.info(f"Answer generated.")
+                logging.info("Answer generated.")
 
                 # Extract Documents
                 retrieved_docs = result.get("context", [])
@@ -254,10 +254,10 @@ def ingest():
                 if os.path.exists(filepath):
                     os.remove(filepath) # Ensure cleanup even if load fails
         
-        # YouTube Logic
+        # YouTube ingestion removed — YouTube's security restrictions block all automated access
         elif 'youtube.com' in source_path or 'youtu.be' in source_path:
-            raise Exception("Loading Youtube is currently not possible due to Outdated Pipeline and Youtube blocking IPs.\
-                             I am looking for alternative. Please stay tuned. Thank you!")
+            flash("YouTube ingestion is no longer supported due to YouTube's security restrictions. Please use a web URL or PDF instead.", "warning")
+            return redirect(url_for('home', tab='ingest'))
         # Web Link Logic
         else:
             source_data = load_link(source_path)
